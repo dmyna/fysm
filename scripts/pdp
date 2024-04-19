@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ensure_cfg_dir() {
+    local CFG_DIR;
+    CFG_DIR="$HOME/.config/prodprox"
+
+    if 
+}

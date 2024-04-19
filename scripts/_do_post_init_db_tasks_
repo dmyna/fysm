@@ -1,0 +1,38 @@
+#!/bin/zsh
+nmap -sP 192.168.101.0/24
+
+killall polybar
+bspbar & disown
+
+# Apply Theme Again
+"$BSPDIR"/themes/$(cat "$CURRENT_THEME_FILE")/apply.sh
+bg-timer "$BG_COMPS"/$CURRENT_BG_COMP & disown
+
+# ------------------------------- #
+
+if test ! -e "$TASKSLOCK"; then
+    echo "             Tasks Configs"
+    echo "----------------------------------------"
+    #tarecur ensure
+
+    tastart-key t
+
+    source "$ISCRIPTS"/initial_tasks
+    echo "----------------------------------------"
+
+    echo "" > "$TASKSLOCK"
+fi
+
+if test ! -e "$RSCHLOCK"; then
+    source "$ISCRIPTS"/init_scheduler
+
+    echo "" > "$RSCHLOCK"
+fi
+
+andrun 'rm $ROOT/usr/tmp/wakeup.lock'
+
+source "$ISCRIPTS"/sync_internal
+_verify_active_tasks_ >> /dev/null 2>&1 & disown
+_verify_alarm_tasks_ >> "$ILOGS/fypm/_verify_alarm_tasks_$(date +%Y-%m-%d)" 2>&1 & disown
+
+initeger progs

@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+ssh "$ANDUSER@$ANDIP" -p "$ANDPORT" -i /mnt/db/Data/con/keys/ssh/ssh_android "${@}"

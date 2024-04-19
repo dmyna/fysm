@@ -1,0 +1,5 @@
+#!/bin/zsh
+NAME="$1"
+PATH_DIR="$TWBIN"
+
+nbin "$PATH_DIR" "$NAME"

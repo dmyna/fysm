@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+QUERY=$1
+COMMAND=${@:2}
+
+echo $COMMAND | zsh | jq -r "$QUERY"

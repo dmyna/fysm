@@ -1,0 +1,21 @@
+#!/bin/zsh
+MSG=$1
+
+ask() {
+    printf "%b [y/n]: " "$MSG"
+    read -r ANSWER;
+
+    if [[ "$ANSWER" == "y" ]]; then
+        exit 0
+    elif [[ "$ANSWER" == "n" ]]; then
+        echo "Ok! Nothing will be changed."
+        exit 1
+    elif [[ "$ANSWER" == "" ]]; then
+        echo "You need to answer!"
+        ask
+    else
+        echo "Only 'y' and 'n' are allowed! Try again."
+        ask
+    fi
+}
+ask 

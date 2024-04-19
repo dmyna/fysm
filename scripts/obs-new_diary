@@ -1,0 +1,27 @@
+#!/bin/bash
+
+VAULT_DIR=$(obs print-default | grep -oP '(?<=Default vault path:  ).*')
+DAILY_OBS_ROOT=Cerebral\ Line/Time/Diary
+
+string=$(cat "$VAULT_DIR"/"$DAILY_OBS_ROOT"/note_template.md)
+
+if [[ "$1" == "-y" ]]; then
+    NOTE_PATH=notes/"$(date -d yesterday +"%Y-%m-%d")"
+    DATE_STR="$(date +"%H:%M") $(date +"(%m/%d)")"
+else
+    NOTE_PATH=notes/"$(date +"%Y-%m-%d")"
+    DATE_STR="$(date +"%H:%M")"
+fi
+
+FINAL_FILE="$DAILY_OBS_ROOT"/"$NOTE_PATH"
+
+NEW_DAILY_BLOCK="
+###### Escrito em $DATE_STR
+"
+
+if [[ ! -f "$VAULT_DIR"/"$FINAL_FILE".md ]]; then
+	obs create "$FINAL_FILE" --content "$string$NEW_DAILY_BLOCK" --open
+else
+	obs create "$FINAL_FILE" --content "$NEW_DAILY_BLOCK" --append --open
+fi
+

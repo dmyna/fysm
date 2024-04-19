@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+APPLICATION=$1
+VOLUME=$2
+APPS_INDEX=$(pactl list sink-inputs | grep 'Sink Input #' | grep -o '[0-9]\+')
+
+echo "$APPS_INDEX" | while read line; do
+    FILTER_APP_STR="application.name = \"$APPLICATION\""
+
+    IS_THE_APP=$(pactl list sink-inputs | awk "/Sink Input #$line/{flag=1;next} /^$/{flag=0} flag" | grep "$FILTER_APP_STR")
+
+    if [[ -n "$IS_THE_APP" ]]; then
+        pactl set-sink-input-volume $line $VOLUME
+    fi
+done

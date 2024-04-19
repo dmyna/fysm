@@ -1,0 +1,10 @@
+#!/bin/bash
+
+CONFIG_NAME="focus_follows_pointer"
+CURRENT_CONFIG="$(bspc config $CONFIG_NAME)"
+
+if [[ "$CURRENT_CONFIG" == "true" ]]; then
+	bspc config "$CONFIG_NAME" false
+else
+	bspc config "$CONFIG_NAME" true
+fi

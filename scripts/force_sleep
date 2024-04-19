@@ -1,0 +1,11 @@
+#!/bin/zsh
+
+while true; do
+    if [[ "$(esch 'Sleep Time!' 'Turnoff Machine' 0)" == "action" ]]; then
+        yes | pwf --no-backup
+
+        break
+    fi
+
+    killall esch
+done

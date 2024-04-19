@@ -1,0 +1,6 @@
+#!/bin/zsh
+# $1 = Once
+# $2 = To loop
+
+echo "$1"
+yes "$2"

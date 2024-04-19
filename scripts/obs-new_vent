@@ -1,0 +1,5 @@
+#!/bin/bash
+
+TODAY_PATH=$(date +"%Y-%m-%d")
+
+obs create Cerebral\ Line/Scriptures/Texts/Vents/"$TODAY_PATH" --open

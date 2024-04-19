@@ -1,0 +1,18 @@
+#!/bin/zsh
+NAME=$1
+
+if [[ -n $NAME ]]; then
+    BIN_PATH=$(which "$NAME")
+
+    if [[ -f "$BIN_PATH" ]]; then
+        if [[ -w "$BIN_PATH" ]]; then
+            nvim "$BIN_PATH" "${@:2}"
+        else
+            sudo nvim "$BIN_PATH" "${@:2}"
+        fi
+    else
+        echo "Bin not found!"
+    fi
+else
+    echo "Do you need to specify something!"   
+fi

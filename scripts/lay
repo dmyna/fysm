@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# --------------------------------------------------------------
+# VARS
+
+DVORAKP=("us" "dvp")
+DVORAK=("us" "dvorak")
+QWERTY=("br")
+
+# --------------------------------------------------------------
+# LOGIC
+
+switch_layout() {
+	setxkbmap -layout "$1" -variant "$2"
+	xkbcomp "$DISPLAY" :0
+}
+
+if [ $# -gt 1 ]; then
+	echo "Só é permitido um parâmetro! Escreva o nome do Layout :)"
+	exit 1
+fi
+
+case $1 in
+	"dvorakp")
+		switch_layout "${DVORAKP[0]}" "${DVORAKP[1]}"
+		;;
+	"qwerty")
+		switch_layout "${QWERTY[0]}" "${QWERTY[1]}"
+		;;
+	"dvorak")
+		switch_layout "${DVORAK[0]}" "${DVORAK[1]}"
+		;;
+	*)
+		echo "Esse layout não existe!"
+		;;
+esac

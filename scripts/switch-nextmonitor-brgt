@@ -1,0 +1,23 @@
+#!/bin/zsh
+
+STATE_FILE=/tmp/single_monitor_state
+FOCUSED_WINDOW=$(bspc query -M -m .focused --names)
+UNFOCUSED_WINDOW=$(bspc query -M --names | sed "s/$FOCUSED_WINDOW//" | tr -d " \t\n\r")
+ON_CASE_BRIGHTNESS=$1
+OFF_CASE_BRIGHTNESS=$2
+
+ensure_file() {
+    if [[ ! -f "$STATE_FILE" ]]; then
+        echo "off" > "$STATE_FILE"
+    fi
+}
+
+ensure_file
+
+if [[ "$(cat "$STATE_FILE")" == "off" ]]; then
+    xrandr --output "$UNFOCUSED_WINDOW" --brightness "$ON_CASE_BRIGHTNESS"
+    echo "on" > "$STATE_FILE"
+else 
+    xrandr --output "$UNFOCUSED_WINDOW" --brightness "$OFF_CASE_BRIGHTNESS"
+    echo "off" > "$STATE_FILE"
+fi

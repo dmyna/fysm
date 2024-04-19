@@ -1,0 +1,72 @@
+#!/bin/zsh
+
+usage() {
+    echo "Usage: pwf [OPTIONS]"
+    echo "  --no-unsched-tasks: Execute without done tasks"
+    echo "  --no-backup: Execute without backup"
+    echo "  --help: Show this help"
+}
+clean_locks() {
+    rm "$RSCHLOCK"
+}
+log_date() {
+    local JSON
+    JSON="{\"shutdownDate\": \"$(date '+%Y-%m-%dT%H:%M:%S')\"}"
+
+    echo "$JSON" > /var/tmp/shutdown.cache
+}
+tasks_eod() {
+    local SCHEDULED_FILTER
+    SCHEDULED_FILTER="scheduled.before:today+23h+59min+59sec"
+
+    # Finalize all today tasks
+    oyes "all" "no" | task "$SCHEDULED_FILTER" modify scheduled:
+
+    rm "$TASKSLOCK"
+}
+last_shutdown_dialog() {
+    echo -n "Is this the last shutdown? (y/n): "
+    read -r answer
+
+    if [[ "$answer" == "y" ]] ||
+        [[ "$answer" == "Y" ]] ||
+        [[ "$answer" == "yes" ]]; then
+        
+	    worktime PreWork
+
+	    if [[ "$UNSCHED_TASKS" == true ]]; then
+	        tasks_eod
+	    else
+            echo "Executing without unsched tasks!"
+        fi
+        
+        clean_locks
+        if [[ "$BACKUP_CON" == true ]]; then
+            backup_con
+        fi
+
+        tastart $(task "Sleep" due.after:today due.before:tomorrow uuids)
+    fi
+}
+
+UNSCHED_TASKS=true
+BACKUP_CON=true
+
+exec > >(tee -a "$LOGS/pwf_$(date +%Y-%m-%d).log")
+exec 2>&1
+
+for arg in "$@"; do
+    if [[ "$arg" == '--help' ]]; then
+        usage
+        exit 0
+    elif [[ "$arg" == '--no-unsched-tasks' ]]; then
+        UNSCHED_TASKS=false
+    elif [[ "$arg" == '--no-backup' ]]; then
+        BACKUP_CON=false
+    fi
+done
+
+last_shutdown_dialog
+
+log_date
+systemctl poweroff

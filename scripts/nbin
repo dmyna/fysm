@@ -1,0 +1,17 @@
+#!/bin/zsh
+PATH_DIR=$1
+NAME=$2
+FINAL_DIR="$PATH_DIR/$NAME"
+
+if [[ -n "$NAME" ]]; then
+    if [[ ! -f "$FINAL_DIR" ]]; then
+        echo "#!/bin/zsh\n" > "$FINAL_DIR"
+        chmod +x "$FINAL_DIR"
+
+        "$VISUAL" "$FINAL_DIR"
+    else
+        echo -e "\e[38;2;255;0;0mThis command already exists!"
+    fi
+else
+    echo "Do you need to specify something!"
+fi

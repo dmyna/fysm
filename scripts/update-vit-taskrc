@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+GET_NEW_CFG=$(cat ~/.taskrc)
+FILTERED_NEW_CFG=$(echo $GET_NEW_CFG | sed -n '/#NO-VIT/q;p')
+
+echo "$FILTERED_NEW_CFG" > ~/.vit_taskrc

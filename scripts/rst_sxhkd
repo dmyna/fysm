@@ -1,0 +1,11 @@
+#!/bin/zsh
+
+killall sxhkd
+sxhkd -c ~/.config/sxhkd/sxhkdrc > /tmp/sxhkd.log 2>&1 & disown
+
+xmodmap -e 'keycode 78 = Multi_key'
+xcape -e 'Scroll_Lock=Multi_key' -t 500
+
+# Enable Super Keys For Menu
+ksuperkey -e 'Super_L=Alt_L|F1' &
+ksuperkey -e 'Super_R=Alt_L|F1' &

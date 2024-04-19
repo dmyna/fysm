@@ -1,0 +1,5 @@
+#!/bin/zsh
+NAME=$1
+PATH_DIR=$MYBIN
+
+nbin $PATH_DIR $NAME

@@ -1,0 +1,71 @@
+#!/bin/zsh
+
+usage() {
+    echo "Usage: $0 [TIME]"
+}
+verify_args() {
+    THEME="$(cat $BSPDIR/themes/.current)"
+    RASI="$BSPDIR/themes/$THEME/rofi/esch.rasi"
+
+    if [[ "$#" -lt 3 ]]; then
+        echo "Too few arguments."
+        usage
+        return 1
+    else
+        TITLE="$1"
+        MAIN_ACTION_TEXT="$2"
+        OPTIONS=("$MAIN_ACTION_TEXT")
+
+        if [[ "$3" ]]; then
+            TIME="$3"
+        else
+            TIME=0
+        fi
+
+        if [[ "$TIME" -ne 0 ]]; then
+            if [[ "$TIME" -gt 1 ]]; then
+                OPTIONS+=("Adiar em $TIME minutos")
+            elif [[ "$TIME" -eq 1 ]]; then
+                OPTIONS+=("Adiar em $TIME minuto")
+            fi
+        fi
+    fi
+
+    if [[ "$#" -gt 3 ]]; then
+        shift 3
+
+        while [[ "$#" -gt 0 ]]; do
+            if [[ "$1" == "--pass-when-wait" ]]; then
+                PASS_WHEN_WAIT=true
+                shift
+                continue
+            fi
+        done
+    fi
+}
+main() {
+    SELECTED=$(printf '%s\n' "${OPTIONS[@]}" | rofi -dmenu \
+        -mesg "test" \
+        -markup-rows \
+        -p "$TITLE" \
+        -theme "$RASI" \
+        -no-click-to-exit
+    )
+
+    if [[ "$SELECTED" == "${OPTIONS[1]}" ]]; then
+        echo "action"
+    elif [[ "$SELECTED" == "${OPTIONS[2]}" ]]; then
+        if [[ "$PASS_WHEN_WAIT" == true ]]; then
+            echo "${TIME}m"
+        else
+            sleep "$TIME"m
+
+            esch "$@"
+        fi
+    else
+        echo "no case"
+    fi
+}
+
+verify_args "$@" || exit 1
+main

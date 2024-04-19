@@ -1,0 +1,60 @@
+#!/bin/zsh
+DEFAULT_BKP_DIR=/mnt/db/Data/bkp/general
+
+usage() {
+    echo "Usage: bkp <content> [local_dir]"
+}
+verify_args() {
+    if [[ -n "$1" ]]; then
+        CONTENT=$1
+    else
+        usage
+        return 1
+    fi
+
+    if [[ -n "$2" ]]; then
+        LOCAL_DIR=$2
+    else
+        LOCAL_DIR=$DEFAULT_BKP_DIR
+    fi
+
+    TAR_FILE="$(basename $CONTENT)_$(date +%Y-%m-%d-%H-%M-%S).tar.gz"
+}
+tar_file() {
+    tar -vczf "$TAR_FILE" $CONTENT
+}
+copy_to_remote() {
+    local REMOTE_DIR=DriveDB:/bkp
+    local FILE=$1
+
+    rclone copy "$FILE" "$REMOTE_DIR"
+}
+move_to_local() {
+    local FILE=$1
+
+    mv "$FILE" "$LOCAL_DIR"
+}
+crypt_file() {
+    local KEY=9869FCC492D3381FD90E8B5C03B0D7437FE8DC90
+    local FILE=$1
+
+    gpg --recipient "$KEY" --encrypt "$FILE"
+
+    echo "$FILE.gpg"
+}
+main() {
+    tar_file
+
+    CRYPTED_FILE=$(crypt_file "$TAR_FILE")
+
+    rm "$TAR_FILE"
+
+    copy_to_remote "$CRYPTED_FILE"
+
+    if [[ "$PWD" != "$LOCAL_DIR" ]]; then
+        move_to_local "$CRYPTED_FILE"
+    fi
+}
+
+verify_args $@ || exit 1
+main

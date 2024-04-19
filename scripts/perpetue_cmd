@@ -1,0 +1,23 @@
+#!/bin/zsh
+
+usage() {
+    echo "Usage: perpetue_cmd <command> [args...]"
+}
+verify_args() {
+    if [[ -z $1 ]]; then
+        usage
+        return 1
+    fi
+
+    CMD="$@"
+}
+main() {
+    clear
+    echo "${CMD[@]}" | zsh && while read -r; do
+        clear
+        echo "${CMD[@]}" | zsh
+    done
+}
+
+verify_args "$@" || exit 1
+main

@@ -1,0 +1,47 @@
+#!/bin/zsh
+
+VAULT_PATH=$(obs print-default | grep -oP '(?<=Default vault path:  ).*')
+PHRASES_PATH=Cerebral\ Line/Scriptures/Phrases
+FIND_PATTERN="^[0-9]+\.\s+"
+
+get_type() {
+    GET_TYPE=$(rofi_dialog "Phrase Type")
+
+    if [[ "$GET_TYPE" == "" ]]; then
+        echo "You didn't specify a phrase type!"
+
+        exit 1
+    else
+        TYPE=$GET_TYPE
+    fi
+}
+get_phrase() {
+    GET_PHRASE=$(rofi_dialog "Phrase")
+
+    if [[ "$GET_PHRASE" == "" ]]; then
+        echo "You didn't specify a phrase!"
+
+        exit 1
+    else
+        PHRASE=$GET_PHRASE
+    fi
+}
+
+get_type
+
+PHRASE_PATH="$PHRASES_PATH/$TYPE.md"
+FULL_PHRASE_PATH="$VAULT_PATH/$PHRASE_PATH"
+
+get_phrase
+
+if [[ -f "$FULL_PHRASE_PATH" ]]; then
+    LAST_NUMBER=$(grep -Eo "$FIND_PATTERN" "$FULL_PHRASE_PATH" | tail -1 | cut -d "." -f 1)
+    NUMBER=$((LAST_NUMBER + 1));
+
+    STRING=$'\n'"$NUMBER. $PHRASE"
+else
+    NUMBER=1
+    STRING="$NUMBER. $PHRASE"
+fi
+
+obs create "$PHRASE_PATH" --content "$STRING" --append

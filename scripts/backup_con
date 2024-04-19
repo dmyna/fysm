@@ -1,0 +1,16 @@
+#!/bin/bash
+
+BKP_DIR="/mnt/db/Data/bkp/diary"
+
+if [[ ! -d "$BKP_DIR" ]]; then
+    mkdir -p "$BKP_DIR"
+fi
+
+cd "$BKP_DIR" || exit 1
+
+if [[ "$(find ./ -type f | wc -l)" -ge 3 ]]; then
+    rm "$(find ./ -type f -printf '%T+ %p\n'\
+        | sort | head -n 1 | cut -d ' ' -f 2-)"
+fi
+
+bkp /mnt/db/Data/con "$BKP_DIR"

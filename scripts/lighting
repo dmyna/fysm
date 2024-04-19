@@ -1,0 +1,105 @@
+#!/bin/bash
+
+# --------------------------------------------------------------
+# VARS
+
+# Monitors
+LFT_MONITOR="HDMI1"
+RGT_MONITOR="VGA1";
+
+# Normal Mode Configs
+NRML_GAMMA="1:1:1";
+NRML_LFT_BRGHT="1";
+NRML_RGT_BRGHT="0.8";
+
+# Night Mode Configs
+NGT_GAMMA="1:1:0.75";
+NGT_LFT_BRGHT="0.7";
+NGT_RGT_BRGHT="0.6";
+
+# Sleep Mode Configs
+SLEEP_GAMMA="1:1:0.65"
+SLEEP_LFT_BRGHT="0.4";
+SLEEP_RGT_BRGHT="0.3";
+
+# Lighting Configs
+LGT_MONITOR="VGA1";
+LGT_GAMMA="1:1:0.0001";
+LGT_BRGHT="100";
+LGT_PICTURE_PATH=~/Pictures/luminous.png;
+
+# --------------------------------------------------------------
+# MODES
+
+night_mode() {
+	# Left Window
+	xrandr --output "$LFT_MONITOR" --gamma "$NGT_GAMMA" --brightness "$NGT_LFT_BRGHT";
+	# Right Window
+	xrandr --output "$RGT_MONITOR" --gamma "$NGT_GAMMA" --brightness "$NGT_RGT_BRGHT";
+}
+normal_mode() {
+	# Left Window
+	xrandr --output "$LFT_MONITOR" --gamma "$NRML_GAMMA" --brightness "$NRML_LFT_BRGHT";
+	# Right Window
+	xrandr --output "$RGT_MONITOR" --gamma "$NRML_GAMMA" --brightness "$NRML_RGT_BRGHT";
+}
+presleep_mode() {
+	# Left Window
+	xrandr --output "$LFT_MONITOR" --gamma "$SLEEP_GAMMA" --brightness "$SLEEP_LFT_BRGHT";
+	# Right Window
+	xrandr --output "$RGT_MONITOR" --gamma "$SLEEP_GAMMA" --brightness "$SLEEP_RGT_BRGHT";
+}
+
+# --------------------------------------------------------------
+# LIGHTING
+
+active_picture() {
+	nohup feh "$LGT_PICTURE_PATH" >> /dev/null &
+}
+
+move_picture_to_window() {
+	bspc node -d "^5" --follow;
+}
+
+turn_on_window_compose() {
+	xrandr --output "$LGT_MONITOR" --gamma "$LGT_GAMMA" --brightness "$LGT_BRGHT";
+}
+
+active_lighting() {
+	active_picture;
+	sleep 0.3;
+	move_picture_to_window;
+	turn_on_window_compose;
+}
+
+# --------------------------------------------------------------
+# GENERAL SCRIPT
+
+avaliate_params() {
+	if [ $# -gt 1 ]; then
+		echo "Este comando só aceita um parâmetro!"
+		exit 1
+	fi
+
+	if [ $# -eq 0 ]; then
+		active_lighting
+		exit 0
+	fi
+
+	case "$1" in
+    		"off")
+        		normal_mode;
+        		;;
+    		"night")
+        		night_mode;
+        		;;
+		    "presleep")
+			    presleep_mode;
+			;;
+    		*)
+        		echo "Nenhuma propriedade válida foi fornecida."
+        		;;
+	esac
+}
+
+avaliate_params "$@"

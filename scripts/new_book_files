@@ -1,0 +1,72 @@
+#!/bin/bash
+# $1 = Mother task id
+ID="$1"
+UUID="$(task "$ID" uuids)"
+FILE_DEFAULT_STR="
+## Resumo  
+---
+
+## Minhas observações  
+---
+
+## Quotes   
+---
+
+## Links úteis  
+---
+
+"
+
+print_task() {
+    task "$UUID" all
+    task MOTHER:"$UUID" all
+}
+ask_for_book_task() {
+    printf "Is that your book task? [y/n]: "
+    read -r ANSWER
+}
+
+if [[ -n "$ID" ]]; then
+    ANSWERED=0;
+
+    print_task
+
+    while [[ $ANSWERED == 0 ]]; do
+        ask_for_book_task
+
+        if [[ "$ANSWER" == "y" ]]; then
+            SUBTASKS_JSON=$(task MOTHER:"$UUID" export)
+            MOTHER_JSON=$(task "$UUID" export)
+            MOTHER_DESCRIPTION=$(printf %b "$(echo "$MOTHER_JSON" | jq -r ".[].description")")
+            BOOKS_DIR=Studies/Livros
+            VAULT_DIR=$(obs print-default | grep -oP '(?<=Default vault path:  ).*')
+
+            BOOK_CODE_EXISTS=0;
+            while IFS= read -r SUBTASK_DESCRIPTION; do
+                if [[ BOOK_CODE_EXISTS -lt 1 ]]; then
+                    BOOK_CODE="$(echo "$SUBTASK_DESCRIPTION" | sed -E 's/:.*//')"
+                    BOOK_CODE_EXISTS=1;
+                fi
+                FULL_DIR="$BOOKS_DIR"/"$MOTHER_DESCRIPTION"/"$(echo "$SUBTASK_DESCRIPTION" | sed -E 's/[A-Z]{3}:\s//' | sed -E 's/:/\ -/g')"
+
+                if [[ ! -f "$VAULT_DIR/$FULL_DIR.md" ]]; then
+                    obs create "$FULL_DIR.md" \
+                        --content "#$BOOK_CODE$FILE_DEFAULT_STR" --open
+                fi
+            done <<< "$(echo "$SUBTASKS_JSON" | jq -r ".[].description")"
+
+
+            ANSWERED=1;
+        elif [[ "$ANSWER" == "n" ]]; then
+            echo "Try to fix it!"
+
+            ANSWERED=1;
+        else
+            echo "Only 'y' and 'n' are allowed! Try again."
+        fi
+    done
+else
+    echo "Do you need to specify an id!"
+    
+    exit 1
+fi

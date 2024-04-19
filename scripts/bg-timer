@@ -1,0 +1,58 @@
+#!/bin/zsh
+
+usage() {
+    echo "Usage: bg-timer <comp_dir> [interval_minutes(default: 5)]"
+}
+verify_process() {
+    PIDS=$(pgrep bg-timer)
+    CURRENT_PID=$(pgrep bg-timer --newest)
+
+    while IFS='\n' read -r PID; do
+    
+        if [[ $PID == $CURRENT_PID ]]; then
+            continue
+        else
+            kill -s SIGTERM $PID
+        fi
+    done <<< "$PIDS"
+}
+verify_args() {
+    DIR=$1
+    MINUTES_SLEEP=$2
+
+    if [[ -z "$DIR" ]]; then
+        usage
+        return 1
+    fi
+
+    if [[ -z "$MINUTES_SLEEP" ]]; then
+        MINUTES_SLEEP=5
+    fi
+
+    if [[ $? -ne 0 ]]; then
+        echo "You need to specify a valid path to a directory!"
+        return 1
+    fi
+}
+main() {
+    verify_process
+    cd $DIR || exit 1
+
+    while true; do
+        PATH_FILES_COUNT=$(find . -type f | wc -l)
+
+        if [[ $PATH_FILES_COUNT -lt 2 ]]; then
+            echo "You need more than one file in that directory to run this script!"
+            exit 1
+        fi
+
+        for file in *; do
+            feh --bg-fill "$file"
+
+            sleep $((MINUTES_SLEEP * 60))
+        done
+    done
+}
+
+verify_args $@ || exit 1
+main & disown

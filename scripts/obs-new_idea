@@ -1,0 +1,5 @@
+#!/bin/bash
+
+OBS_DIR=Cerebral\ Line/Ideas/Cache/new_idea
+
+obs create "$OBS_DIR" --open

@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+obs create 'Cerebral Line/Snapshots/Quick Note' --open
