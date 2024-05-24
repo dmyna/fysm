@@ -1,17 +1,48 @@
 #!/bin/zsh
-PATH_DIR=$1
-NAME=$2
-FINAL_DIR="$PATH_DIR/$NAME"
 
-if [[ -n "$NAME" ]]; then
+usage() {
+    echo "Usage: nbin <path_to_bin> <name>"
+}
+verify_args() {
+    if [[ $# -eq 2 ]]; then
+        PATH_DIR=$1
+        NAME=$2
+    else
+        usage
+        return 1
+    fi
+}
+main() {
+    BIN_MODAL="#!/bin/zsh
+
+usage() {
+    echo \"Usage: $NAME <args>\"
+}
+verify_args() {
+    if [[ ]]; then
+    else
+        usage
+        return 1
+    fi
+}
+main() {
+
+}
+verify_args \$@ || exit 1
+main"
+    
+    FINAL_DIR="$PATH_DIR/$NAME"
+
+
     if [[ ! -f "$FINAL_DIR" ]]; then
-        echo "#!/bin/zsh\n" > "$FINAL_DIR"
+        echo "$BIN_MODAL" > "$FINAL_DIR"
         chmod +x "$FINAL_DIR"
 
         "$VISUAL" "$FINAL_DIR"
     else
         echo -e "\e[38;2;255;0;0mThis command already exists!"
     fi
-else
-    echo "Do you need to specify something!"
-fi
+}
+
+verify_args $@ || exit 1
+main

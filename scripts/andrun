@@ -1,3 +1,9 @@
 #!/bin/zsh
 
-ssh "$ANDUSER@$ANDIP" -p "$ANDPORT" -i /mnt/db/Data/con/keys/ssh/ssh_android "${@}"
+if [[ "$1" == "-2" ]]; then
+    shift
+
+    ssh "$ANDUSER2@$ANDIP2" -p "$ANDPORT2" -i /mnt/db/Data/con/keys/ssh/ssh_android "${@}"
+else 
+    ssh "$ANDUSER@$ANDIP" -p "$ANDPORT" -i /mnt/db/Data/con/keys/ssh/ssh_android "${@}"
+fi

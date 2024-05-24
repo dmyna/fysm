@@ -1,26 +1,24 @@
 #!/bin/zsh
 
 usage() {
-    echo "Usage: $0 [TIME]"
+    echo "Usage: $0 <title> <action_text> <time> [OPTIONS]"
+    echo ""
+    echo "OPTIONS:"
+    echo "  --pass-when-wait: if timer is selected, print the time and exit"
 }
 verify_args() {
     THEME="$(cat $BSPDIR/themes/.current)"
     RASI="$BSPDIR/themes/$THEME/rofi/esch.rasi"
 
-    if [[ "$#" -lt 3 ]]; then
+    if [[ "$#" -lt 2 ]]; then
         echo "Too few arguments."
         usage
         return 1
     else
         TITLE="$1"
         MAIN_ACTION_TEXT="$2"
+        TIME="$3"
         OPTIONS=("$MAIN_ACTION_TEXT")
-
-        if [[ "$3" ]]; then
-            TIME="$3"
-        else
-            TIME=0
-        fi
 
         if [[ "$TIME" -ne 0 ]]; then
             if [[ "$TIME" -gt 1 ]]; then
@@ -58,6 +56,7 @@ main() {
         if [[ "$PASS_WHEN_WAIT" == true ]]; then
             echo "${TIME}m"
         else
+            echo "$PASS_WHEN_WAIT"
             sleep "$TIME"m
 
             esch "$@"

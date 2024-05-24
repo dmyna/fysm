@@ -6,10 +6,10 @@ DAILY_OBS_ROOT=Cerebral\ Line/Time/Diary
 string=$(cat "$VAULT_DIR"/"$DAILY_OBS_ROOT"/note_template.md)
 
 if [[ "$1" == "-y" ]]; then
-    NOTE_PATH=notes/"$(date -d yesterday +"%Y-%m-%d")"
+    NOTE_PATH=notes/"$(date -d yesterday +"%Y/%m/W%V/%d")"
     DATE_STR="$(date +"%H:%M") $(date +"(%m/%d)")"
 else
-    NOTE_PATH=notes/"$(date +"%Y-%m-%d")"
+    NOTE_PATH=notes/"$(date +"%Y/%m/W%V/%d")"
     DATE_STR="$(date +"%H:%M")"
 fi
 
