@@ -1,0 +1,47 @@
+#!/bin/zsh
+
+FILE=/tmp/.current_battery
+
+send_last_value() {
+    if [[ -f "$FILE" ]]; then
+        LAST_VALUE=$(cat "$FILE")
+        echo "$LAST_VALUE"
+    fi
+}
+avaliate_value() {
+    if [[ $? == 0 ]]; then
+        IS_PLUGGED=$(echo "$1" | jq -r '.plugged')
+        PERCENTAGE=$(echo "$1" | jq -r '.percentage')
+
+        if [[ $IS_PLUGGED != "UNPLUGGED" ]]; then
+            echo "⚡$PERCENTAGE%"
+        else
+            echo "$PERCENTAGE%"
+        fi
+
+    else
+        echo "err"
+    fi
+}
+get_status() {
+    yes yes | andrun "$1" termux-battery-status 2>>"$LOG_FILE"
+}
+get_new_values() {
+    LOG_FILE=/tmp/tmxbattery.log
+
+    echo "$(date +"%Y-%m-%d %H:%M:%S") - Logs:" > "$LOG_FILE"
+
+    GET_STATUS=$(get_status)
+    VALUE="$(avaliate_value $GET_STATUS)"
+    SUCCESS=""
+
+    GET_STATUS2=$(get_status -2)
+    VALUE="$VALUE, $(avaliate_value $GET_STATUS2)"
+    SUCCESS=""
+
+    echo "$VALUE" > "$FILE"
+    echo "$VALUE"
+}
+
+send_last_value
+get_new_values

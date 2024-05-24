@@ -1,0 +1,7 @@
+#!/bin/bash
+
+worktime=$(cat /var/tmp/current_work_time)
+bgcolor=$(cat /var/tmp/current_polybar_b_wt_color)
+fgcolor=$(cat /var/tmp/current_polybar_f_wt_color)
+
+echo "%{B$bgcolor}%{F$fgcolor}$worktime%{F-}%{B-}"

@@ -1,0 +1,39 @@
+#!/bin/zsh
+CHAR_LIMIT=25
+LAST_TASK_PATH="/tmp/.last_task"
+CURRENT_TASK_POLY_PATH="/tmp/.current_task_poly"
+
+update_task() {
+    GET_CURRENT="$(task +ACTIVE "export")"
+
+    if [[ "$(echo "$GET_CURRENT" | jq 'length')" -gt 1 ]]; then
+        echo "Há mais de uma tarefa..." > "$CURRENT_TASK_POLY_PATH"
+        exit 1
+    elif [[ "$(echo "$GET_CURRENT" | jq 'length')" -eq 0 ]]; then
+        echo "Sem tarefas!" > "$CURRENT_TASK_POLY_PATH"
+        exit 1
+    else
+        GET_DESC="$(echo "$GET_CURRENT" | jq -r '.[0].description')"
+
+        if [[ "${#GET_DESC}" -gt "$CHAR_LIMIT" ]]; then
+            DESCRIPTION="$(echo "$GET_DESC" | cut -c1-$CHAR_LIMIT)..."
+        else
+            DESCRIPTION="$GET_DESC"
+        fi
+
+        ID="$(echo "$GET_CURRENT" | jq -r '.[0].id')"
+        RELATIVE_TIME="$(task rc.verbose: rc.report.active.columns:start.relative\
+            rc.report.active.labels:1 limit:1 active)"
+
+        echo "$DESCRIPTION · $ID · $RELATIVE_TIME" > "$CURRENT_TASK_POLY_PATH"
+    fi
+}
+main() {
+    while true; do
+        update_task
+
+        timeout 60s inotifywait -qq -e modify "$LAST_TASK_PATH"
+    done
+}
+
+main
