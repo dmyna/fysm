@@ -1,0 +1,5 @@
+#!/bin/bash
+
+color=$(cat /var/tmp/current_polybar_b_wt_color)
+
+echo "%{F$color}$1%{F-}"
