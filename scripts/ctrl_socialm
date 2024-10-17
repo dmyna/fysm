@@ -31,7 +31,6 @@ get_delay() {
    pluck export | grep "delay" | sed 's/.*delay//g' | tr -d ' ' 
 }
 
-
 main() {
     local DELAY;
     local FINAL_INTERVAL;
@@ -41,6 +40,7 @@ main() {
         DELAY_MINUTES=$((DELAY / 60))
 
         for domain in $BLOCKED_DOMAINS; do
+            pluck - allow $domain
             pluck + block $domain
         done
 
@@ -52,14 +52,15 @@ main() {
             else
                 FINAL_INTERVAL=$(( INTERVAL - DELAY_MINUTES ))
 
-                echo "$PACKAGE block $INTERVAL" | at now + $FINAL_INTERVAL minutes
+                echo "$PACKAGE unblock" | at now + $FINAL_INTERVAL minutes
             fi
         else
-            echo "$PACKAGE unblock" | at now + $((DELAY / 60)) minutes
+            echo "$PACKAGE unblock" | at now + $DELAY_MINUTES minutes
         fi
     else
         for domain in $BLOCKED_DOMAINS; do
             pluck - block $domain
+            pluck + allow $domain
         done
     fi
 }
