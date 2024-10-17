@@ -1,0 +1,69 @@
+#!/bin/zsh
+PACKAGE=ctrl_socialm
+BLOCK=true
+BLOCKED_DOMAINS=( "instagram.com" "youtube.com" )
+
+usage() {
+    echo "Usage: $PACKAGE <action (default: block)>"
+    echo ""
+    echo "Actions:"
+    echo "  block [interval] (minutes)"
+    echo "  unblock"
+    echo "  help | --help | -h"
+}
+verify_args() {
+    if [[ $# -le 1 ]]; then
+        if [[ $1 == "--help" ]] || [[ $1 == "-h" ]] || [[ $1 == "help" ]]; then
+            usage
+            return 1
+        elif [[ $1 == "unblock" ]]; then
+            BLOCK=false
+        fi
+    elif [[ $# -eq 2 ]]; then
+        INTERVAL=$2
+    else
+        usage
+        return 1
+    fi
+}
+
+get_delay() {
+   pluck export | grep "delay" | sed 's/.*delay//g' | tr -d ' ' 
+}
+
+
+main() {
+    local DELAY;
+    local FINAL_INTERVAL;
+
+    if [[ $BLOCK == true ]]; then
+        DELAY=$(get_delay)
+        DELAY_MINUTES=$((DELAY / 60))
+
+        for domain in $BLOCKED_DOMAINS; do
+            pluck + block $domain
+            echo "oi"
+        done
+
+        if [[ -n $INTERVAL ]]; then
+            if [[ $INTERVAL -lt $DELAY_MINUTES ]]; then
+                echo "The delay interval is too short. Your current delay is $DELAY_MINUTES minutes!"
+
+                return 1
+            else
+                FINAL_INTERVAL=$(( INTERVAL - DELAY_MINUTES ))
+
+                echo "$PACKAGE block $INTERVAL" | at now + $FINAL_INTERVAL minutes
+            fi
+        else
+            echo "$PACKAGE unblock" | at now + $((DELAY / 60)) minutes
+        fi
+    else
+        for domain in $BLOCKED_DOMAINS; do
+            pluck - block $domain
+            echo "oi2"
+        done
+    fi
+}
+verify_args $@ || exit 1
+main
