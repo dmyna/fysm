@@ -42,7 +42,6 @@ main() {
 
         for domain in $BLOCKED_DOMAINS; do
             pluck + block $domain
-            echo "oi"
         done
 
         if [[ -n $INTERVAL ]]; then
@@ -61,7 +60,6 @@ main() {
     else
         for domain in $BLOCKED_DOMAINS; do
             pluck - block $domain
-            echo "oi2"
         done
     fi
 }
